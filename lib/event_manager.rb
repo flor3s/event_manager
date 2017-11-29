@@ -1,15 +1,25 @@
 require 'csv'
-require 'sunlight/congress'
+require 'google/apis/civicinfo_v2'
 require 'erb'
 
-Sunlight::Congress.api_key = "e179a6973728c4dd3fb1204283aaccb5"
 
 def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5,"0")[0..4]
 end
 
 def legislators_by_zipcode(zipcode)
-  Sunlight::Congress::Legislator.by_zipcode(zipcode)
+  civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+  civic_info.key = "AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw"
+
+  begin
+    civic_info.representative_info_by_address(
+      address: zip,
+      levels: "country",
+      roles: ["legislatorUpperBody", "legislatorLowerBody"]
+    ).officials 
+  rescue
+    "You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials"
+  end
 end
 
 def save_thank_you_letters(id,form_letter)
